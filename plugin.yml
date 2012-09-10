@@ -2,6 +2,7 @@ name: NerdMessage
 version: ${project.version}
 description: ${project.description}
 author: Deaygo Jarkko
+database: true
 main: nu.nerd.nerdmessage.NerdMessage
 
 permissions:
@@ -11,9 +12,42 @@ permissions:
     nerdmessage.me:
         description: Allow a user to send an action
         default: true
-    nerdmessage.cmsg:
+    nerdmessage.broadcast:
         default: op
         description: Send message to all users to get attention
+    nerdmessage.adminbroadcast:
+        default: op
+        description: Send message to all admins   
+    nerdmessage.mail:
+        description: Use the mail system.
+        default: true
+    nerdmessage.mail.send:
+        description: Send mail.
+        default: true
+    nerdmessage.mail.bypassthrottle:
+        description: Bypass the mail throttling rules.
+        default: op
+    nerdmessage.mail.ignorefull:
+        description: Send messages to users with full inboxes.
+        default: op
+    nerdmessage.mail.ignoreblock:
+        description: Send messages to user ignoring their block-list.
+        default: op
+    nerdmessage.mail.settings.display:
+        description: Change settings affecting the display of the user's inbox.
+        default: true
+    nerdmessage.mail.settings.internal:
+        description: Change internal settings for a user, such as the inbox size.
+        default: op
+    nerdmessage.mail.settings.admin:
+        description: Change mail settings for other users.
+        default: op
+    nerdmessage.mail.settings.admin.view:
+        description: View mail settings for other users.
+        default: op
+    nerdmessage.mail.settings.view:
+        description: Use the view-settings option.
+        default: true
 
 commands:
     msg:
@@ -22,10 +56,33 @@ commands:
         permission: nerdmessage.message
         usage: |
            /msg <user> <message>: Send a message to a player
-    cmsg:
-        description: Send message to all users to get attention
-        permission: nerdmessage.cmsg
+           /reply <message> Reply to the last message
+    broadcast:
+        aliases: [b]
+        description: Send message to all users to get attention.
+        permission: nerdmessage.broadcast
+    op-broadcast:
+        aliases: [ob, o]
+        description: Send message to all ops.
+        permission: nerdmessage.broadcast
+    admin-broadcast:
+        aliases: [ab, a] 
+        description: Send message to all admins.
+        permission: nerdmessage.adminbroadcast
     me:
-        description: Send an action
+        description: Send an action.
         permission: nerdmessage.me
-        
+    mail:
+        description: Send and receive mail.
+        permission: nerdmessage.mail
+        usage: |
+            /mail: Display this message.
+            /mail inbox [page]: Display your inbox.
+            /mail read <id[,id][,id-id]>: Read messages.
+            /mail delete <id[,id][,id-id]>: Delete messages.
+            /mail send <user> <message>: Send mail to user.
+            /mail clear: Delete all messages.
+            /mail compose: Begin multi-line message composition.
+            /mail block [user[ user]]: Add or remove a user from your block-list. With no arguments, display your block-list.
+            /mail settings [<key> <value> [username]]: Change settings. Use this command without arguments to see a list of possible keys and values.
+            /mail view-settings [username]: View settings for user.

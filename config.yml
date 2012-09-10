@@ -1,0 +1,23 @@
+#Description of options:
+#newmailboxdefaults: Describes the default settings oject that will be created the first time a user is seen by the mail system.
+#
+#requireregistration: Require that users be 'registered', i.e. have an associated settings object stored in the DB, before they can use the mail system or
+#receive mail. The plugin 'registers' users the first time they log into the server with the plugin enabled.
+#note that if this is disabled users will be able to send mail to any name, resulting in that name being registered,
+#even if it is misspelt or otherwise non-existant. 
+#
+#cooldown: time in seconds a user must wait between sending messages.
+#
+#mailboxcachesize: The mail system keeps a cache of user data (mail and settings) in memory. This option sets the size of that cache.
+#probably wants to be around the max number of users on the server.
+
+newmailboxdefaults:
+    inbox:
+        previewlength: 40
+        pagesize: 5
+        sort: newest_first
+        maxinboxsize: 500
+
+requireregistration: true
+cooldown: 10
+mailboxcachesize: 200
