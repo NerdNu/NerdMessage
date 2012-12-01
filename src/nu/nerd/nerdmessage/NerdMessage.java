@@ -18,11 +18,11 @@ import org.bukkit.plugin.java.JavaPlugin;
 public class NerdMessage extends JavaPlugin {
 
     List<NMUser> users = new ArrayList<NMUser>();
-	WorldGuardPlugin worldGuard = null;
-	
+    WorldGuardPlugin worldGuard = null;
+    
     @Override
     public void onEnable() {
-		worldGuard = getWorldGuard();
+        worldGuard = getWorldGuard();
     }
 
     @Override
@@ -50,154 +50,154 @@ public class NerdMessage extends JavaPlugin {
                     receiver = getServer().getConsoleSender();
                 }
                 else if (args[0].contains("r:")) {
-					if (worldGuard == null) {
-						System.out.println("!! Could not get WorldGuard from Bukkit !!");
-						return false;
-					}
-					
-					ProtectedRegion region = null;
-					String regionName = args[0].replace("r:", "");
+                    if (worldGuard == null) {
+                        System.out.println("!! Could not get WorldGuard from Bukkit !!");
+                        return false;
+                    }
+                    
+                    ProtectedRegion region = null;
+                    String regionName = args[0].replace("r:", "");
 
-					if (sender instanceof Player) {
-						World w = ((Player)sender).getWorld();
-						RegionManager rm = worldGuard.getRegionManager(w);
-						if (rm.hasRegion(regionName)) {
-							region = rm.getRegionExact(regionName);
-						}
-					}
-					else if (sender instanceof ConsoleCommandSender) {
-						System.out.println("Silly Console, you cannot /msg a region");
-						return true;
-					}
+                    if (sender instanceof Player) {
+                        World w = ((Player)sender).getWorld();
+                        RegionManager rm = worldGuard.getRegionManager(w);
+                        if (rm.hasRegion(regionName)) {
+                            region = rm.getRegionExact(regionName);
+                        }
+                    }
+                    else if (sender instanceof ConsoleCommandSender) {
+                        System.out.println("Silly Console, you cannot /msg a region");
+                        return true;
+                    }
 
-					if (region == null) {
-						sender.sendMessage(ChatColor.RED + "Region could not be found");
-						if (user != null) {
-							user.setReplyTo(null);
-						}
-						return true;
-					}
+                    if (region == null) {
+                        sender.sendMessage(ChatColor.RED + "Region could not be found");
+                        if (user != null) {
+                            user.setReplyTo(null);
+                        }
+                        return true;
+                    }
 
-					if (!region.isMember(sender.getName())) {
-						sender.sendMessage(ChatColor.RED + "You cannot message a region that you do not belong to");
-						return true;
-					}
-					
-					Set<String> players = region.getOwners().getPlayers();
-					players.addAll(region.getMembers().getPlayers());
-							
-					if (players.size() < 1) {
-						sender.sendMessage(ChatColor.RED + "No players in region");
-						return true;
-					}
-					
-					sender.sendMessage("[" + ChatColor.RED + "Me" + ChatColor.WHITE + " -> " + ChatColor.GOLD + regionName + ChatColor.WHITE + "] " + message);
+                    if (!region.isMember(sender.getName())) {
+                        sender.sendMessage(ChatColor.RED + "You cannot message a region that you do not belong to");
+                        return true;
+                    }
+                    
+                    Set<String> players = region.getOwners().getPlayers();
+                    players.addAll(region.getMembers().getPlayers());
+                            
+                    if (players.size() < 1) {
+                        sender.sendMessage(ChatColor.RED + "No players in region");
+                        return true;
+                    }
+                    
+                    sender.sendMessage("[" + ChatColor.RED + "Me" + ChatColor.WHITE + " -> " + ChatColor.GOLD + regionName + ChatColor.WHITE + "] " + message);
 
-					for (String player : players) {
-						NMUser u = getOrCreateUser(player);
-						u.setReplyTo("r:" + regionName);
-						
-						if (sender.getName().equals(u.getName()))
-							continue;
-						
-						receiver = getPlayer(player);
+                    for (String player : players) {
+                        NMUser u = getOrCreateUser(player);
+                        u.setReplyTo("r:" + regionName);
+                        
+                        if (sender.getName().equals(u.getName()))
+                            continue;
+                        
+                        receiver = getPlayer(player);
 
-						if (name.equalsIgnoreCase("cmsg")) {
-							receiver.sendMessage("[" + ChatColor.RED + sender.getName() + ChatColor.WHITE + " -> " + ChatColor.GOLD + regionName + ChatColor.WHITE + "] " + ChatColor.GREEN + message);
-						}
-						else {
-							System.out.println(u.getName() + ":/msg " + regionName + " " + message);
-							receiver.sendMessage("[" + ChatColor.RED + sender.getName() + ChatColor.WHITE + " -> " + ChatColor.GOLD + regionName + ChatColor.WHITE + "] " + message);
-						}
+                        if (name.equalsIgnoreCase("cmsg")) {
+                            receiver.sendMessage("[" + ChatColor.RED + sender.getName() + ChatColor.WHITE + " -> " + ChatColor.GOLD + regionName + ChatColor.WHITE + "] " + ChatColor.GREEN + message);
+                        }
+                        else {
+                            System.out.println(u.getName() + ":/msg " + regionName + " " + message);
+                            receiver.sendMessage("[" + ChatColor.RED + sender.getName() + ChatColor.WHITE + " -> " + ChatColor.GOLD + regionName + ChatColor.WHITE + "] " + message);
+                        }
 
-						if (receiver != getServer().getConsoleSender()) {
-							System.out.println("[" + sender.getName() + " -> " + regionName + "] " + message);
-						}
-					}
+                        if (receiver != getServer().getConsoleSender()) {
+                            System.out.println("[" + sender.getName() + " -> " + regionName + "] " + message);
+                        }
+                    }
 
-					return true;
-				}
-				else {
-					receiver = getPlayer(args[0]);
+                    return true;
+                }
+                else {
+                    receiver = getPlayer(args[0]);
                 }
                 user = getOrCreateUser(sender.getName());
             } else {
                 if (user.getReplyTo().equalsIgnoreCase("console")) {
                     receiver = getServer().getConsoleSender();
                 } 
-				else if (user.getReplyTo().contains("r:")) {
-					if (worldGuard == null) {
-						System.out.println("!! Could not get WorldGuard from Bukkit !!");
-						return false;
-					}
-					
-					ProtectedRegion region = null;
-					String regionName = user.getReplyTo().replace("r:", "");
+                else if (user.getReplyTo().contains("r:")) {
+                    if (worldGuard == null) {
+                        System.out.println("!! Could not get WorldGuard from Bukkit !!");
+                        return false;
+                    }
+                    
+                    ProtectedRegion region = null;
+                    String regionName = user.getReplyTo().replace("r:", "");
 
-					if (sender instanceof Player) {
-						World w = ((Player)sender).getWorld();
-						RegionManager rm = worldGuard.getRegionManager(w);
-						if (rm.hasRegion(regionName)) {
-							region = rm.getRegionExact(regionName);
-						}
-					}
-					else if (sender instanceof ConsoleCommandSender) {
-						System.out.println("Silly Console, you cannot /msg a region");
-						return true;
-					}
+                    if (sender instanceof Player) {
+                        World w = ((Player)sender).getWorld();
+                        RegionManager rm = worldGuard.getRegionManager(w);
+                        if (rm.hasRegion(regionName)) {
+                            region = rm.getRegionExact(regionName);
+                        }
+                    }
+                    else if (sender instanceof ConsoleCommandSender) {
+                        System.out.println("Silly Console, you cannot /msg a region");
+                        return true;
+                    }
 
-					if (region == null) {
-						sender.sendMessage(ChatColor.RED + "Region could not be found");
-						if (user != null) {
-							user.setReplyTo(null);
-						}
-						return true;
-					}
+                    if (region == null) {
+                        sender.sendMessage(ChatColor.RED + "Region could not be found");
+                        if (user != null) {
+                            user.setReplyTo(null);
+                        }
+                        return true;
+                    }
 
-					if (!region.isMember(sender.getName())) {
-						sender.sendMessage(ChatColor.RED + "You cannot message a region that you do not belong to");
-						return true;
-					}
-					
-					Set<String> players = region.getOwners().getPlayers();
-					players.addAll(region.getMembers().getPlayers());
-							
-					if (players.size() < 1) {
-						sender.sendMessage(ChatColor.RED + "No players in region");
-						return true;
-					}
-					
-					sender.sendMessage("[" + ChatColor.RED + "Me" + ChatColor.WHITE + " -> " + ChatColor.GOLD + regionName + ChatColor.WHITE + "] " + message);
+                    if (!region.isMember(sender.getName())) {
+                        sender.sendMessage(ChatColor.RED + "You cannot message a region that you do not belong to");
+                        return true;
+                    }
+                    
+                    Set<String> players = region.getOwners().getPlayers();
+                    players.addAll(region.getMembers().getPlayers());
+                            
+                    if (players.size() < 1) {
+                        sender.sendMessage(ChatColor.RED + "No players in region");
+                        return true;
+                    }
+                    
+                    sender.sendMessage("[" + ChatColor.RED + "Me" + ChatColor.WHITE + " -> " + ChatColor.GOLD + regionName + ChatColor.WHITE + "] " + message);
 
-					for (String player : players) {
-						NMUser u = getOrCreateUser(player);
-						u.setReplyTo("r:" + regionName);
-						
-						if (sender.getName().equals(u.getName()))
-							continue;
-						
-						receiver = getPlayer(player);
+                    for (String player : players) {
+                        NMUser u = getOrCreateUser(player);
+                        u.setReplyTo("r:" + regionName);
+                        
+                        if (sender.getName().equals(u.getName()))
+                            continue;
+                        
+                        receiver = getPlayer(player);
 
-						if (name.equalsIgnoreCase("cmsg")) {
-							receiver.sendMessage("[" + ChatColor.RED + sender.getName() + ChatColor.WHITE + " -> " + ChatColor.GOLD + regionName + ChatColor.WHITE + "] " + ChatColor.GREEN + message);
-						}
-						else {
-							System.out.println(u.getName() + ":/msg " + regionName + " " + message);
-							receiver.sendMessage("[" + ChatColor.RED + sender.getName() + ChatColor.WHITE + " -> " + ChatColor.GOLD + regionName + ChatColor.WHITE + "] " + message);
-						}
+                        if (name.equalsIgnoreCase("cmsg")) {
+                            receiver.sendMessage("[" + ChatColor.RED + sender.getName() + ChatColor.WHITE + " -> " + ChatColor.GOLD + regionName + ChatColor.WHITE + "] " + ChatColor.GREEN + message);
+                        }
+                        else {
+                            System.out.println(u.getName() + ":/msg " + regionName + " " + message);
+                            receiver.sendMessage("[" + ChatColor.RED + sender.getName() + ChatColor.WHITE + " -> " + ChatColor.GOLD + regionName + ChatColor.WHITE + "] " + message);
+                        }
 
-						if (receiver != getServer().getConsoleSender()) {
-							System.out.println("[" + sender.getName() + " -> " + regionName + "] " + message);
-						}
-					}
+                        if (receiver != getServer().getConsoleSender()) {
+                            System.out.println("[" + sender.getName() + " -> " + regionName + "] " + message);
+                        }
+                    }
 
-					return true;
-				}
-				else {
-					receiver = getPlayer(user.getReplyTo());
-				}
+                    return true;
+                }
+                else {
+                    receiver = getPlayer(user.getReplyTo());
+                }
             }
-			
+            
             if (receiver == null) {
                 sender.sendMessage(ChatColor.RED + "User is not online.");
                 if (user != null) {
@@ -293,21 +293,21 @@ public class NerdMessage extends JavaPlugin {
 
         return null;
     }
-	
+    
     public void removeUser(String username) {
         NMUser u = getUser(username);
         if (u != null) {
             users.remove(u);
         }
     }
-	
-	private WorldGuardPlugin getWorldGuard() {
-		Plugin plugin = getServer().getPluginManager().getPlugin("WorldGuard");
+    
+    private WorldGuardPlugin getWorldGuard() {
+        Plugin plugin = getServer().getPluginManager().getPlugin("WorldGuard");
  
-		if (plugin == null || !(plugin instanceof WorldGuardPlugin)) {
-			return null; // Maybe you want throw an exception instead
-		}
+        if (plugin == null || !(plugin instanceof WorldGuardPlugin)) {
+            return null; // Maybe you want throw an exception instead
+        }
 
-		return (WorldGuardPlugin) plugin;
-	}
+        return (WorldGuardPlugin) plugin;
+    }
 }
