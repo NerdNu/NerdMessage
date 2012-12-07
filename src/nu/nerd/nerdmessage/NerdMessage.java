@@ -20,6 +20,8 @@ public class NerdMessage extends JavaPlugin {
     List<NMUser> users = new ArrayList<NMUser>();
     WorldGuardPlugin worldGuard = null;
     
+    private static final String REGION_PREFIX = "r:";
+
     @Override
     public void onEnable() {
         worldGuard = getWorldGuard();
@@ -49,14 +51,14 @@ public class NerdMessage extends JavaPlugin {
                 if (args[0].equalsIgnoreCase("console")) {
                     receiver = getServer().getConsoleSender();
                 }
-                else if (args[0].contains("r:")) {
+                else if (args[0].contains(REGION_PREFIX)) {
                     if (worldGuard == null) {
                         System.out.println("!! Could not get WorldGuard from Bukkit !!");
                         return false;
                     }
                     
                     ProtectedRegion region = null;
-                    String regionName = args[0].replace("r:", "");
+                    String regionName = args[0].replace(REGION_PREFIX, "");
 
                     if (sender instanceof Player) {
                         World w = ((Player)sender).getWorld();
@@ -91,11 +93,11 @@ public class NerdMessage extends JavaPlugin {
                         return true;
                     }
                     
-                    sender.sendMessage("[" + ChatColor.RED + "Me" + ChatColor.WHITE + " -> " + ChatColor.GOLD + regionName + ChatColor.WHITE + "] " + message);
+                    sender.sendMessage("[" + ChatColor.RED + "Me" + ChatColor.WHITE + " -> " + ChatColor.AQUA + regionName + ChatColor.WHITE + "] " + message);
 
                     for (String player : players) {
                         NMUser u = getOrCreateUser(player);
-                        u.setReplyTo("r:" + regionName);
+                        u.setReplyTo(REGION_PREFIX + regionName);
                         
                         if (sender.getName().equals(u.getName()))
                             continue;
@@ -103,15 +105,15 @@ public class NerdMessage extends JavaPlugin {
                         receiver = getPlayer(player);
 
                         if (name.equalsIgnoreCase("cmsg")) {
-                            receiver.sendMessage("[" + ChatColor.RED + sender.getName() + ChatColor.WHITE + " -> " + ChatColor.GOLD + regionName + ChatColor.WHITE + "] " + ChatColor.GREEN + message);
+                            receiver.sendMessage("[" + ChatColor.RED + sender.getName() + ChatColor.WHITE + " -> " + ChatColor.AQUA + regionName + ChatColor.WHITE + "] " + ChatColor.GREEN + message);
                         }
                         else {
-                            System.out.println(u.getName() + ":/msg " + regionName + " " + message);
-                            receiver.sendMessage("[" + ChatColor.RED + sender.getName() + ChatColor.WHITE + " -> " + ChatColor.GOLD + regionName + ChatColor.WHITE + "] " + message);
+                            System.out.println(u.getName() + ":/msg " + REGION_PREFIX + regionName + " " + message);
+                            receiver.sendMessage("[" + ChatColor.RED + sender.getName() + ChatColor.WHITE + " -> " + ChatColor.AQUA + regionName + ChatColor.WHITE + "] " + message);
                         }
 
                         if (receiver != getServer().getConsoleSender()) {
-                            System.out.println("[" + sender.getName() + " -> " + regionName + "] " + message);
+                            System.out.println("[" + sender.getName() + " -> " + REGION_PREFIX + regionName + "] " + message);
                         }
                     }
 
@@ -125,14 +127,14 @@ public class NerdMessage extends JavaPlugin {
                 if (user.getReplyTo().equalsIgnoreCase("console")) {
                     receiver = getServer().getConsoleSender();
                 } 
-                else if (user.getReplyTo().contains("r:")) {
+                else if (user.getReplyTo().contains(REGION_PREFIX)) {
                     if (worldGuard == null) {
                         System.out.println("!! Could not get WorldGuard from Bukkit !!");
                         return false;
                     }
                     
                     ProtectedRegion region = null;
-                    String regionName = user.getReplyTo().replace("r:", "");
+                    String regionName = user.getReplyTo().replace(REGION_PREFIX, "");
 
                     if (sender instanceof Player) {
                         World w = ((Player)sender).getWorld();
@@ -167,11 +169,11 @@ public class NerdMessage extends JavaPlugin {
                         return true;
                     }
                     
-                    sender.sendMessage("[" + ChatColor.RED + "Me" + ChatColor.WHITE + " -> " + ChatColor.GOLD + regionName + ChatColor.WHITE + "] " + message);
+                    sender.sendMessage("[" + ChatColor.RED + "Me" + ChatColor.WHITE + " -> " + ChatColor.AQUA + regionName + ChatColor.WHITE + "] " + message);
 
                     for (String player : players) {
                         NMUser u = getOrCreateUser(player);
-                        u.setReplyTo("r:" + regionName);
+                        u.setReplyTo(REGION_PREFIX + regionName);
                         
                         if (sender.getName().equals(u.getName()))
                             continue;
@@ -179,15 +181,15 @@ public class NerdMessage extends JavaPlugin {
                         receiver = getPlayer(player);
 
                         if (name.equalsIgnoreCase("cmsg")) {
-                            receiver.sendMessage("[" + ChatColor.RED + sender.getName() + ChatColor.WHITE + " -> " + ChatColor.GOLD + regionName + ChatColor.WHITE + "] " + ChatColor.GREEN + message);
+                            receiver.sendMessage("[" + ChatColor.RED + sender.getName() + ChatColor.WHITE + " -> " + ChatColor.AQUA + regionName + ChatColor.WHITE + "] " + ChatColor.GREEN + message);
                         }
                         else {
-                            System.out.println(u.getName() + ":/msg " + regionName + " " + message);
-                            receiver.sendMessage("[" + ChatColor.RED + sender.getName() + ChatColor.WHITE + " -> " + ChatColor.GOLD + regionName + ChatColor.WHITE + "] " + message);
+                            System.out.println(u.getName() + ":/msg  " + REGION_PREFIX + regionName + " " + message);
+                            receiver.sendMessage("[" + ChatColor.RED + sender.getName() + ChatColor.WHITE + " -> " + ChatColor.AQUA + regionName + ChatColor.WHITE + "] " + message);
                         }
 
                         if (receiver != getServer().getConsoleSender()) {
-                            System.out.println("[" + sender.getName() + " -> " + regionName + "] " + message);
+                            System.out.println("[" + sender.getName() + " -> " + REGION_PREFIX + regionName + "] " + message);
                         }
                     }
 
