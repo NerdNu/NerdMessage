@@ -28,6 +28,11 @@
 			<artifactId>bukkit</artifactId>
 			<version>1.6.4-R0.1-SNAPSHOT</version>
 		</dependency>
+	 <dependency>
+	  <groupId>com.sk89q</groupId>
+	  <artifactId>worldguard</artifactId>
+	  <version>5.6.6-SNAPSHOT</version>
+	 </dependency>
 	</dependencies>
 	<repositories>
 		<repository>
@@ -39,6 +44,16 @@
 				<enabled>true</enabled>
 			</releases>
 			<url>http://repo.bukkit.org/content/groups/public/</url>
+		</repository>
+		<repository>
+			<id>sk89q-repo</id>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<url>http://maven.sk89q.com/repo/</url>
 		</repository>
 	</repositories>
 	<build>
