@@ -15,10 +15,12 @@ import org.bukkit.plugin.java.JavaPlugin;
 public class NerdMessage extends JavaPlugin {
 
     List<NMUser> users = new CopyOnWriteArrayList<NMUser>();
+    public static NerdMessage inst;
 
     @Override
     public void onEnable() {
         this.getServer().getPluginManager().registerEvents(new NerdMessageListener(this), this);
+        this.inst = this;
     }
 
     @Override
@@ -135,6 +137,10 @@ public class NerdMessage extends JavaPlugin {
         }
         
         return false;
+    }
+    
+    public static NerdMessage getInst(){
+        return inst;
     }
     
     public Player getPlayer(final String name) {
