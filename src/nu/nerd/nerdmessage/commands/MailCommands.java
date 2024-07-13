@@ -281,7 +281,7 @@ public class MailCommands implements CommandExecutor {
 
         Integer id;
 
-        if (args[1].equals("")) {
+        if(args.length == 1) {
             sender.sendMessage(ChatColor.RED + "Usage: /mail archive <id>");
             return;
         }
