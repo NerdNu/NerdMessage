@@ -226,6 +226,10 @@ public class MailCommands implements CommandExecutor {
             public void run() {
 
                 List<MailMessage> messages = MailMessage.findUnread(player.getUniqueId());
+                for(MailMessage mail : messages) {
+                    mail.setNotified(true);
+                    MailMessage.flagNotified(player.getUniqueId());
+                }
                 int pages = (messages.size() + perPage - 1) / perPage; //integer division
                 int offset = (page - 1) * perPage;
 
