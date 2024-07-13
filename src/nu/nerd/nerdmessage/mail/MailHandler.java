@@ -97,7 +97,6 @@ public class MailHandler implements Listener {
             public void run() {
                 if (MailMessage.findUnnotified(player.getUniqueId()).size() > 0) {
                     notifyNewMessages(player.getUniqueId(), true);
-                    MailMessage.flagNotified(player.getUniqueId());
                 }
             }
         }.runTaskLaterAsynchronously(plugin, 40L);
@@ -112,21 +111,14 @@ public class MailHandler implements Listener {
      * @param isOrigin this is the server the message is originating from
      */
     public void notifyNewMessages(UUID recipient, boolean isOrigin) {
-        boolean notified = false;
         Player player = plugin.getServer().getPlayer(recipient);
         String msg = String.format("%sYou have new mail! Type %s/mail inbox%s to read it.", ChatColor.GREEN, ChatColor.LIGHT_PURPLE, ChatColor.GREEN);
         if (player != null && player.isOnline()) {
             player.sendMessage(msg);
-            notified = true;
         } else {
             if (plugin.crossServerEnabled() && isOrigin) {
                 plugin.redisPublish("mail.new", recipient.toString());
             }
         }
-        if (notified) {
-            MailMessage.flagNotified(recipient);
-        }
     }
-
-
 }
