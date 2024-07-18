@@ -107,9 +107,21 @@ commands:
     aliases: [mod-broadcast]
     permission: nerdmessage.mb
     description: Mod Chat
+  mbs:
+    permission: nerdmessage.mb
+    description: Mod Chat but slanty!
+  mbme:
+    permission: nerdmessage.mb
+    description: Mod Chat but /me-ified!
   ab:
     permission: nerdmessage.ab
     description: Admin Chat
+  abs:
+    permission: nerdmessage.ab
+    description: Admin Chat but slanty!
+  abme:
+    permission: nerdmessage.ab
+    description: Admin Chat but /me-ified!
   o:
     permission: nerdmessage.o
     description: Send an attention-grabbing green "staff context" message in public chat.

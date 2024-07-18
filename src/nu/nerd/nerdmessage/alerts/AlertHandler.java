@@ -1,10 +1,12 @@
 package nu.nerd.nerdmessage.alerts;
 
 import nu.nerd.nerdmessage.NerdMessage;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.File;
@@ -107,7 +109,9 @@ public class AlertHandler {
      * Format and send the message to all users online
      */
     private void broadcast(AlertMessage msg) {
-        plugin.getServer().broadcastMessage(String.format("%s[Server] %s", msg.getColor(), msg.getText()));
+        for(Player player : Bukkit.getOnlinePlayers()) {
+            player.sendMessage(String.format("%s[Server] %s", msg.getColor(), msg.getText()));
+        }
     }
 
 
