@@ -1,5 +1,7 @@
 package nu.nerd.nerdmessage;
 
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import redis.clients.jedis.JedisPubSub;
 
@@ -19,13 +21,19 @@ public class RedisListener extends JedisPubSub {
     @Override
     public void onPMessage(final String pattern, final String channel, final String message) {
         if (channel.equalsIgnoreCase("nerdmessage.mbg")) {
-            plugin.getServer().broadcast(message, "nerdmessage.mb");
+            for(Player player : plugin.getPlayersWithPerm("nerdmessage.mb")) {
+                player.sendMessage(message);
+            }
         }
         else if (channel.equalsIgnoreCase("nerdmessage.abg")) {
-            plugin.getServer().broadcast(message, "nerdmessage.ab");
+            for(Player player : plugin.getPlayersWithPerm("nerdmessage.ab")) {
+                player.sendMessage(message);
+            }
         }
         else if (channel.equalsIgnoreCase("nerdmessage.globalbroadcast")) {
-            plugin.getServer().broadcastMessage(message);
+            for(Player player : Bukkit.getOnlinePlayers()) {
+                player.sendMessage(message);
+            }
         }
         else if (channel.equalsIgnoreCase("nerdmessage.mail.new")) {
             new BukkitRunnable() {

@@ -1,5 +1,6 @@
 package nu.nerd.nerdmessage.commands;
 
+import net.kyori.adventure.text.Component;
 import nu.nerd.nerdmessage.NerdMessage;
 import nu.nerd.nerdmessage.StringUtil;
 import org.bukkit.Bukkit;
@@ -7,18 +8,26 @@ import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
-public class BroadcastCommands implements CommandExecutor {
+import java.util.ArrayList;
+import java.util.List;
+
+public class StaffCommands implements CommandExecutor {
 
 
     private NerdMessage plugin;
     private final String redisError = ChatColor.RED + "Error: could not deliver message, as the Redis server could not be reached.";
 
 
-    public BroadcastCommands(NerdMessage plugin) {
+    public StaffCommands(NerdMessage plugin) {
         this.plugin = plugin;
         plugin.getCommand("mb").setExecutor(this);
+        plugin.getCommand("mbs").setExecutor(this);
+        plugin.getCommand("mbme").setExecutor(this);
         plugin.getCommand("ab").setExecutor(this);
+        plugin.getCommand("abs").setExecutor(this);
+        plugin.getCommand("abme").setExecutor(this);
         plugin.getCommand("broadcast").setExecutor(this);
         plugin.getCommand("o").setExecutor(this);
         plugin.getCommand("mbg").setExecutor(this);
@@ -28,62 +37,84 @@ public class BroadcastCommands implements CommandExecutor {
 
 
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
+
         if (args.length == 0) return false;
-        if (cmd.getName().equalsIgnoreCase("mb")) {
-            mb(sender, StringUtil.join(args));
-            return true;
-        }
-        else if (cmd.getName().equalsIgnoreCase("ab")) {
-            ab(sender, StringUtil.join(args));
-            return true;
-        }
-        else if (cmd.getName().equalsIgnoreCase("broadcast")) {
-            broadcast(sender, StringUtil.join(args));
-            return true;
-        }
-        else if (cmd.getName().equalsIgnoreCase("o")) {
-            o(sender, StringUtil.join(args));
-            return true;
-        }
-        else if (cmd.getName().equalsIgnoreCase("mbg")) {
-            mbg(sender, StringUtil.join(args));
-            return true;
-        }
-        else if (cmd.getName().equalsIgnoreCase("abg")) {
-            abg(sender, StringUtil.join(args));
-            return true;
-        }
-        else if (cmd.getName().equalsIgnoreCase("global-broadcast")) {
-            globalBroadcast(sender, StringUtil.join(args));
-            return true;
-        }
-        else {
-            return false;
+        switch (cmd.getName()) {
+            case "mb":
+                mb(sender, StringUtil.join(args), "NORMAL");
+                return true;
+            case "mbs":
+                mb(sender, StringUtil.join(args), "SARCASTIC");
+                return true;
+            case "mbme":
+                mb(sender, StringUtil.join(args), "ME");
+                return true;
+            case "ab":
+                ab(sender, StringUtil.join(args), "NORMAL");
+                return true;
+            case "abs":
+                ab(sender, StringUtil.join(args), "SARCASTIC");
+                return true;
+            case "abme":
+                ab(sender, StringUtil.join(args), "ME");
+                return true;
+            case "BROADCAST":
+                broadcast(sender, StringUtil.join(args));
+                return true;
+            case "O":
+                o(sender, StringUtil.join(args));
+                return true;
+            case "MBG":
+                mbg(sender, StringUtil.join(args));
+                return true;
+            case "ABG":
+                abg(sender, StringUtil.join(args));
+                return true;
+            case "GLOBAL-BROADCAST":
+                globalBroadcast(sender, StringUtil.join(args));
+                return true;
+            default:
+                return false;
         }
     }
 
 
-    public void mb(CommandSender sender, String message) {
-        message = tag("Mod - " + sender.getName()) + ChatColor.GREEN + message;
-        Bukkit.broadcast(message, "nerdmessage.mb");
+    public void mb(CommandSender sender, String message, String type) {
+        switch (type) {
+            case "NORMAL" -> message = tag("Mod - " + sender.getName()) + ChatColor.GREEN + message;
+            case "SARCASTIC" -> message = tag("Mod - " + sender.getName()) + ChatColor.GREEN + ChatColor.ITALIC + message;
+            case "ME" -> message = tag("Mod") + ChatColor.GREEN + "*" + sender.getName() + " " + ChatColor.GREEN + message;
+        }
+        for(Player player : plugin.getPlayersWithPerm("nerdmessage.mb")) {
+            player.sendMessage(message);
+        }
     }
 
 
-    public void ab(CommandSender sender, String message) {
-        message = tag("Admin - " + sender.getName()) + ChatColor.GOLD + message;
-        Bukkit.broadcast(message, "nerdmessage.ab");
+    public void ab(CommandSender sender, String message, String type) {
+        switch (type) {
+            case "NORMAL" -> message = tag("Admin - " + sender.getName()) + ChatColor.GOLD + message;
+            case "SARCASTIC" -> message = tag("Admin - " + sender.getName()) + ChatColor.GOLD + ChatColor.ITALIC + message;
+            case "ME" -> message = tag("Admin") + ChatColor.GOLD + "*" + sender.getName() + " " + ChatColor.GOLD + message;
+        }
+        for(Player player : plugin.getPlayersWithPerm("nerdmessage.ab")) {
+            player.sendMessage(message);
+        }
     }
-
 
     public void broadcast(CommandSender sender, String message) {
         message = tag("Broadcast") + ChatColor.GREEN + message;
-        Bukkit.broadcastMessage(message);
+        for(Player player : Bukkit.getOnlinePlayers()) {
+            player.sendMessage(message);
+        }
     }
 
 
     public void o(CommandSender sender, String message) {
         message = String.format("<%s%s%s>%s %s", ChatColor.RED, sender.getName(), ChatColor.WHITE, ChatColor.GREEN, message);
-        Bukkit.broadcastMessage(message);
+        for(Player player : Bukkit.getOnlinePlayers()) {
+            player.sendMessage(message);
+        }
     }
 
 

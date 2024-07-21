@@ -2,6 +2,7 @@ package nu.nerd.nerdmessage;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -18,7 +19,7 @@ import com.avaje.ebean.EbeanServer;
 
 import nu.nerd.nerdmessage.alerts.AlertHandler;
 import nu.nerd.nerdmessage.commands.AlertCommands;
-import nu.nerd.nerdmessage.commands.BroadcastCommands;
+import nu.nerd.nerdmessage.commands.StaffCommands;
 import nu.nerd.nerdmessage.commands.ChatCommands;
 import nu.nerd.nerdmessage.commands.IgnoreCommands;
 import nu.nerd.nerdmessage.commands.MOTDCommands;
@@ -76,7 +77,7 @@ public class NerdMessage extends JavaPlugin {
     public void registerCommands() {
         new ChatCommands(this);
         new IgnoreCommands(this);
-        new BroadcastCommands(this);
+        new StaffCommands(this);
         new MOTDCommands(this);
         new OtherCommands(this);
         new MailCommands(this);
@@ -328,6 +329,14 @@ public class NerdMessage extends JavaPlugin {
 
     public HashMap<String, Integer> getMuteCounts() {
         return muteCounts;
+    }
+
+    public List<Player> getPlayersWithPerm(String permission) {
+        ArrayList<Player> returnlist = new ArrayList<>();
+        for(Player player : Bukkit.getOnlinePlayers()) {
+            if(player.hasPermission(permission)) returnlist.add(player);
+        }
+        return returnlist;
     }
 
 
