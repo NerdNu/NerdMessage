@@ -1,6 +1,5 @@
 package nu.nerd.nerdmessage.commands;
 
-import net.kyori.adventure.text.Component;
 import nu.nerd.nerdmessage.NerdMessage;
 import nu.nerd.nerdmessage.StringUtil;
 import org.bukkit.Bukkit;
@@ -12,6 +11,7 @@ import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class StaffCommands implements CommandExecutor {
 
@@ -39,23 +39,23 @@ public class StaffCommands implements CommandExecutor {
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
 
         if (args.length == 0) return false;
-        switch (cmd.getName()) {
-            case "mb":
+        switch (cmd.getName().toUpperCase(Locale.ROOT)) {
+            case "MB":
                 mb(sender, StringUtil.join(args), "NORMAL");
                 return true;
-            case "mbs":
+            case "MBS":
                 mb(sender, StringUtil.join(args), "SARCASTIC");
                 return true;
-            case "mbme":
+            case "MBME":
                 mb(sender, StringUtil.join(args), "ME");
                 return true;
-            case "ab":
+            case "AB":
                 ab(sender, StringUtil.join(args), "NORMAL");
                 return true;
-            case "abs":
+            case "ABS":
                 ab(sender, StringUtil.join(args), "SARCASTIC");
                 return true;
-            case "abme":
+            case "ABME":
                 ab(sender, StringUtil.join(args), "ME");
                 return true;
             case "BROADCAST":
@@ -105,6 +105,7 @@ public class StaffCommands implements CommandExecutor {
     public void broadcast(CommandSender sender, String message) {
         message = tag("Broadcast") + ChatColor.GREEN + message;
         for(Player player : Bukkit.getOnlinePlayers()) {
+            System.out.println(player.getName());
             player.sendMessage(message);
         }
     }
