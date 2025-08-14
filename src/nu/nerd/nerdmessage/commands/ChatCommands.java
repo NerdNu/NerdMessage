@@ -1,5 +1,9 @@
 package nu.nerd.nerdmessage.commands;
 
+import java.util.HashSet;
+import java.util.Collections;
+import java.util.Set;
+import java.util.stream.Collectors;
 import nu.nerd.nerdmessage.NMUser;
 import nu.nerd.nerdmessage.NerdMessage;
 import nu.nerd.nerdmessage.StringUtil;
@@ -70,57 +74,88 @@ public class ChatCommands implements CommandExecutor {
      * @param sarcastic Whether this message will be italic
      * @param action Whether this message will be an action
      */
-    public void msg(CommandSender sender, String recipientName, String message, boolean green, boolean sarcastic, boolean action) {
+    public void msg(CommandSender sender, String recipientNames, String message, boolean green, boolean sarcastic, boolean action) {
 
         NMUser user = plugin.getOrCreateUser(sender.getName());
         CommandSender recipient = null;
 
-        // Find the recipient of this message
-        if (recipientName.equalsIgnoreCase("console")) {
-            recipient = plugin.getServer().getConsoleSender();
-        }
-        else {
-            recipient = plugin.getPlayer(recipientName);
+        // Find recipients from recipientNames
+        Set<String> recipients = new HashSet<>();
+        for (String recipientName : recipientNames.split(",")) {
+            if (recipientName.equalsIgnoreCase("console")) {
+                recipients.add("CONSOLE");
+            } else {
+                recipient = plugin.getPlayer(recipientName);
+                if (recipient != null) {
+                    recipients.add(recipient.getName());
+                } else {
+                    // If a recipient couldn't be found, notify the sender
+                    sender.sendMessage(ChatColor.RED + recipientName +" is not online.");
+                }
+            }
         }
 
-        // If a recipient couldn't be found, notify the sender and nullify the reply-to
-        if (recipient == null) {
-            sender.sendMessage(ChatColor.RED + "User is not online.");
-            if (user != null) {
-                user.setReplyTo(null);
-            }
+        // Add the sender to the recipients to simplify later logic
+        recipients.add(sender.getName());
+
+        // Limit to 6 recipients (7 because sender is one of them)
+        if (recipients.size() > 6) {
+            sender.sendMessage(ChatColor.RED + "Sorry, you can send to a maximum of 6 recipients. Try a clanchat.");
             return;
         }
 
-        // Set reply-to for both players
-        NMUser r = plugin.getOrCreateUser(recipient.getName());
-        r.setReplyTo(user.getName());
-        user.setReplyTo(recipient.getName());
-
-        // Whether to actually send the message to the player or not (for /ignore).
-        boolean doSendMessage = sender.hasPermission("nerdmessage.ignore.bypass-msg") || !(r.isIgnoringPlayer(sender.getName()));
-
-        // Send the message
-        if (sarcastic) {
-            sender.sendMessage(tag("Me", recipient.getName(), action) + ChatColor.ITALIC + message);
-        } else {
-            sender.sendMessage(tag("Me", recipient.getName(), action) + message);
+        // Set reply-to for involved players
+        for (String recipientName : recipients) {
+            plugin.getOrCreateUser(recipientName).setReplyTo(recipients);
         }
-        if (doSendMessage) {
-            if (green) {
-                message = ChatColor.GREEN + message;
+
+        // Send the messages
+        // It is possible for the player to have no other valid recipients.
+        // The message is sent anyway to emulate past behavior of msg when you messaged yourself.
+        for (String recipientName : recipients) {
+            // Whether to actually send the message to the player or not (for /ignore).
+            if (!sender.hasPermission("nerdmessage.ignore.bypass-msg") && (plugin.getOrCreateUser(recipientName).isIgnoringPlayer(sender.getName()))) {
+                System.out.println("Message blocked by /ignore from:" + sender.getName() + " to:" + recipientName);
+                continue;
             }
-	    if (sarcastic) {
-                message = ChatColor.ITALIC + message;
+            // Set the appropriate tag for the message
+            String tag;
+            if (recipients.size() == 1) {
+                tag = tag("Me","Me",action);
+            } else if (recipientName == sender.getName()) {
+                tag = tag("Me", recipients.stream()
+                    .filter(name -> !name.equals(sender.getName()))
+                    .collect(Collectors.joining(",")),
+                    action);
+            } else {
+                tag = tag(sender.getName(),"Me," + recipients.stream()
+                    .filter(name -> !name.equals(recipientName))
+                    .filter(name -> !name.equals(sender.getName()))
+                    .collect(Collectors.joining(",")),
+                    action);
             }
-	    recipient.sendMessage(tag(sender.getName(), "Me", action) + message);
+
+            // Find the recipient of this message
+            if (recipientName.equalsIgnoreCase("console")) {
+                recipient = plugin.getServer().getConsoleSender();
+            }
+            else {
+                recipient = plugin.getPlayer(recipientName);
+            }
+
+            // And now we actually send the message...
+            if (sarcastic) {
+                recipient.sendMessage(tag + ChatColor.ITALIC + message);
+            } else if (green) {
+                recipient.sendMessage(tag + ChatColor.GREEN + message);
+            } else {
+                recipient.sendMessage( tag + message);
+            }
         }
 
         // Logs
-        System.out.println(user.getName() + ":/msg " + recipient.getName() + " " + message);
-        if (recipient != plugin.getServer().getConsoleSender()) {
-            System.out.println((doSendMessage ? "" : "Blocked by /ignore: ") + "[" + sender.getName() + " -> " + recipient.getName() + "] " + message);
-        }
+        System.out.println(user.getName() + ":/msg " + String.join(",", recipients) + " " + message);
+        System.out.println("[" + sender.getName() + " -> " + String.join(",", recipients) + "] " + message);
 
     }
 
@@ -136,7 +171,7 @@ public class ChatCommands implements CommandExecutor {
             sender.sendMessage(ChatColor.RED + "No user to reply to.");
             return;
         }
-        msg(sender, user.getReplyTo(), message, green, sarcastic, action);
+        msg(sender, String.join(",", user.getReplyTo()), message, green, sarcastic, action);
     }
 
 

@@ -9,7 +9,7 @@ import java.util.Set;
 public class NMUser {
 
     private String name;
-    private String replyTo;
+    private Set<String> replyTo;
     private NerdMessage plugin;
 
     private Set<String> ignoring = new HashSet<String>();
@@ -27,11 +27,11 @@ public class NMUser {
         this.name = name;
     }
     
-    public String getReplyTo() {
+    public Set<String> getReplyTo() {
         return this.replyTo;
     }
     
-    public void setReplyTo(String replyTo) {
+    public void setReplyTo(Set<String> replyTo) {
         this.replyTo = replyTo;
     }
 
