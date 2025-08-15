@@ -36,11 +36,17 @@ public class ChatCommands implements CommandExecutor {
                 reply(sender, StringUtil.join(args), false, false, false);
             } else if (label.equalsIgnoreCase("m") || label.equalsIgnoreCase("msg") || label.equalsIgnoreCase("t") || label.equalsIgnoreCase("tell")) {
                 msg(sender, args[0], StringUtil.join(args, 1), false, false, false);
-            } else if (label.equalsIgnoreCase("rs")) {
+            } else if (label.equalsIgnoreCase("ms") || label.equalsIgnoreCase("msgs") || label.equalsIgnoreCase("ts") || label.equalsIgnoreCase("tells")) {
+                msg(sender, args[0], StringUtil.join(args, 1), false, true, false);
+            } else if (label.equalsIgnoreCase("mme") || label.equalsIgnoreCase("msgme") || label.equalsIgnoreCase("tme") || label.equalsIgnoreCase("tellme")) {
+                msg(sender, args[0], StringUtil.join(args, 1), false, false, true);
+            } else if (label.equalsIgnoreCase("msme") || label.equalsIgnoreCase("msgsme") || label.equalsIgnoreCase("tsme") || label.equalsIgnoreCase("tellsme")) {
+                msg(sender, args[0], StringUtil.join(args, 1), false, true, true);
+            } else if (label.equalsIgnoreCase("rs") || label.equalsIgnoreCase("replys")) {
                 reply(sender, StringUtil.join(args), false, true, false);
-            } else if (label.equalsIgnoreCase("rme")) {
+            } else if (label.equalsIgnoreCase("rme") || label.equalsIgnoreCase("replyme")) {
                 reply(sender, StringUtil.join(args), false, false, true);
-            } else if (label.equalsIgnoreCase("rsme")) {
+            } else if (label.equalsIgnoreCase("rsme") || label.equalsIgnoreCase("replysme")) {
                 reply(sender, StringUtil.join(args), false, true, true);
             } else {
                 return false;
@@ -118,22 +124,25 @@ public class ChatCommands implements CommandExecutor {
                 System.out.println("Message blocked by /ignore from:" + sender.getName() + " to:" + recipientName);
                 continue;
             }
+
             // Set the appropriate tag for the message
-            String tag;
-            if (recipients.size() == 1) {
-                tag = tag("Me","Me",action);
-            } else if (recipientName == sender.getName()) {
-                tag = tag("Me", recipients.stream()
-                    .filter(name -> !name.equals(sender.getName()))
+            String tag = tag(
+                recipientName.equals(sender.getName()) ? "Me" : sender.getName(), // left side
+                recipients.stream()
+                    .map(name -> {
+                        // recipient sees their name as "Me"
+                        if (name.equals(recipientName)) return "Me";
+                        // sender name in the list of recipients is always "Me". If there is a duplicate "Me" we should only get one because recipients is a set
+                        if (name.equals(sender.getName())) return "Me";
+                        // all other names are unchanged
+                        return name;
+                    })
+                    // If there is more than 1 recipient (aka non-self message), don't include "Me" in recipients list for the sender
+                    .filter(name -> !(name.equals("Me") && recipientName.equals(sender.getName()) && recipients.size() > 1))
+                    .distinct()
                     .collect(Collectors.joining(",")),
-                    action);
-            } else {
-                tag = tag(sender.getName(),"Me," + recipients.stream()
-                    .filter(name -> !name.equals(recipientName))
-                    .filter(name -> !name.equals(sender.getName()))
-                    .collect(Collectors.joining(",")),
-                    action);
-            }
+                action
+            );
 
             // Find the recipient of this message
             if (recipientName.equalsIgnoreCase("console")) {

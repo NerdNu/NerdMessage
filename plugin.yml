@@ -80,7 +80,7 @@ permissions:
     
 commands:
   msg:
-    aliases: [m, t, r, reply, rme, rs, rsme, tell]
+    aliases: [msgs, msgme, msgsme, m, ms, mme, msme, t, ts, tme, tsme, r, rme, rs, rsme, reply, replys, replyme, replysme, tell, tells, tellme, tellsme]
     description: Send a message to a user.
     permission: nerdmessage.message
     usage: |
