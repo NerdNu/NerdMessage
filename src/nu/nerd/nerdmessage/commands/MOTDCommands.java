@@ -1,5 +1,7 @@
 package nu.nerd.nerdmessage.commands;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -7,6 +9,8 @@ import org.bukkit.command.CommandSender;
 
 import nu.nerd.nerdmessage.NerdMessage;
 import nu.nerd.nerdmessage.StringUtil;
+
+import static nu.nerd.nerdmessage.ColourUtils.formatMiniMessage;
 
 public class MOTDCommands implements CommandExecutor {
 
@@ -69,7 +73,8 @@ public class MOTDCommands implements CommandExecutor {
 		if (motd == null || motd.equals("")) {
 			sender.sendMessage(ChatColor.GREEN + "No Message Of The Day is set");
 		} else {
-			sender.sendMessage(ChatColor.AQUA + "[MOTD]: " + ChatColor.WHITE + ChatColor.translateAlternateColorCodes('&', motd));
+			sender.sendMessage(Component.text("[MOTD]: ", NamedTextColor.AQUA)
+					.append(formatMiniMessage(motd)));
 		}
     }
     
@@ -92,7 +97,8 @@ public class MOTDCommands implements CommandExecutor {
 		if (mbmotd == null || mbmotd.equals("")) {
 			sender.sendMessage(ChatColor.GREEN + "No Moderator Message Of The Day is set");
 		} else {
-			sender.sendMessage(ChatColor.GREEN + "[MB MOTD]: " + ChatColor.WHITE + ChatColor.translateAlternateColorCodes('&', mbmotd));
+			sender.sendMessage(Component.text("[MB MOTD]: ", NamedTextColor.GREEN)
+					.append(formatMiniMessage(mbmotd)));
 		}
     }
     
@@ -115,7 +121,8 @@ public class MOTDCommands implements CommandExecutor {
 		if (abmotd == null || abmotd.equals("")) {
 			sender.sendMessage(ChatColor.GREEN + "No Administrator Message Of The Day is set");
 		} else {
-			sender.sendMessage(ChatColor.GOLD + "[AB MOTD]: " + ChatColor.WHITE + ChatColor.translateAlternateColorCodes('&', abmotd));
+			sender.sendMessage(Component.text("[AB MOTD]: ", NamedTextColor.GOLD)
+					.append(formatMiniMessage(abmotd)));
 		}
     }
     

@@ -2,7 +2,7 @@ name: NerdMessage
 version: ${project.version}
 description: ${project.description}
 website: ${project.url}
-author: Deaygo Jarkko
+author: [Deaygo, Jarkko, PPGOME, pez252]
 main: nu.nerd.nerdmessage.NerdMessage
 
 permissions:

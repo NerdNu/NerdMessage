@@ -1,5 +1,8 @@
 package nu.nerd.nerdmessage.alerts;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextColor;
 import nu.nerd.nerdmessage.NerdMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -15,6 +18,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static nu.nerd.nerdmessage.ColourUtils.color;
 
 
 public class AlertHandler {
@@ -78,12 +83,12 @@ public class AlertHandler {
      * Load the alerts from the config
      */
     private void loadAlerts() {
-        alerts = new ArrayList<AlertMessage>();
-        String text, color;
+        alerts = new ArrayList<>();
+        String text, configColor;
         for (Map<?, ?> map : yaml.getMapList("alerts")) {
             text = (String) map.get("text");
-            color = (String) map.get("color");
-            alerts.add(new AlertMessage(text, color));
+            configColor = (String) map.get("color");
+            alerts.add(new AlertMessage(text, color(configColor)));
         }
     }
 
@@ -92,13 +97,11 @@ public class AlertHandler {
      * Serialize the alerts into the YAML configuration object
      */
     private void serializeAlerts() {
-        List<Map<String, String>> maps = new ArrayList<Map<String, String>>();
+        List<Map<String, String>> maps = new ArrayList<>();
         for (AlertMessage alert : alerts) {
-            Map<String, String> m = new HashMap<String, String>();
+            Map<String, String> m = new HashMap<>();
             m.put("text", alert.getRawText());
-            if (!alert.getColor().equals(ChatColor.LIGHT_PURPLE)) {
-                m.put("color", alert.getColor().name());
-            }
+            m.put("color", alert.getColor().toString().toUpperCase());
             maps.add(m);
         }
         yaml.set("alerts", maps);
@@ -110,7 +113,7 @@ public class AlertHandler {
      */
     private void broadcast(AlertMessage msg) {
         for(Player player : Bukkit.getOnlinePlayers()) {
-            player.sendMessage(String.format("%s[Server] %s", msg.getColor(), msg.getText()));
+            player.sendMessage(Component.text("[Server] ", msg.getColor()).append(msg.getText()));
         }
     }
 
@@ -132,6 +135,24 @@ public class AlertHandler {
     public boolean addAlert(AlertMessage alert, int index) {
         try {
             alerts.add(index, alert);
+            serializeAlerts();
+            yaml.save(yamlFile);
+        } catch (IOException ex) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Edit an already existing alert
+     * @param text   the new text of the alert
+     * @param index  the index of the alert being edited
+     * @return true if successful
+     */
+    public boolean editAlert(String text, int index) {
+        try {
+            AlertMessage alertMessage = alerts.get(index);
+            alertMessage.setText(text);
             serializeAlerts();
             yaml.save(yamlFile);
         } catch (IOException ex) {

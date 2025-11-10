@@ -1,10 +1,9 @@
 package nu.nerd.nerdmessage.commands;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -13,9 +12,15 @@ import org.bukkit.command.CommandSender;
 import nu.nerd.nerdmessage.NerdMessage;
 import nu.nerd.nerdmessage.StringUtil;
 import nu.nerd.nerdmessage.alerts.AlertMessage;
+import org.bukkit.command.TabCompleter;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import static nu.nerd.nerdmessage.ColourUtils.color;
+import static nu.nerd.nerdmessage.ColourUtils.colorList;
 
 
-public class AlertCommands implements CommandExecutor {
+public class AlertCommands implements CommandExecutor, TabCompleter {
 
 
     private final NerdMessage plugin;
@@ -50,6 +55,10 @@ public class AlertCommands implements CommandExecutor {
                 insertCommand(sender, args);
                 return true;
             }
+            else if(args[0].equalsIgnoreCase("edit")) {
+                editCommand(sender, args);
+                return true;
+            }
             else if (args[0].equalsIgnoreCase("remove")) {
                 removeCommand(sender, args);
                 return true;
@@ -75,6 +84,8 @@ public class AlertCommands implements CommandExecutor {
         sender.sendMessage("        Add the message to the broadcast rotation.");
         sender.sendMessage(ChatColor.LIGHT_PURPLE + "    /alert insert <index> [color] <message>");
         sender.sendMessage("        Insert the message into the broadcast rotation.");
+        sender.sendMessage(ChatColor.LIGHT_PURPLE + "    /alert edit <index> [color] <message>");
+        sender.sendMessage("        Edit the message at the specified index.");
         sender.sendMessage(ChatColor.LIGHT_PURPLE + "    /alert remove <number>");
         sender.sendMessage("        Remove a message by number.");
         sender.sendMessage(ChatColor.LIGHT_PURPLE + "    /alert interval [seconds]");
@@ -88,7 +99,9 @@ public class AlertCommands implements CommandExecutor {
         List<AlertMessage> alerts = plugin.getAlertHandler().getAlerts();
         sender.sendMessage(String.format("%sThere are %d alerts.", ChatColor.LIGHT_PURPLE, alerts.size()));
         for (AlertMessage alert : alerts) {
-            sender.sendMessage(String.format("%s(%d) %s", alert.getColor(), alerts.indexOf(alert)+1, alert.getText()));
+            sender.sendMessage(Component.text(alert.getColor().toString(), alert.getColor())
+                    .append(Component.text(" (" + (alerts.indexOf(alert) + 1) + ") "))
+                    .append(alert.getText()));
         }
     }
 
@@ -103,10 +116,10 @@ public class AlertCommands implements CommandExecutor {
             return;
         }
 
-        String possibleColor = args[1].toLowerCase().replace("_", "");
+        String possibleColor = args[1].toUpperCase();
         AlertMessage alert;
-        if (getColorMap().containsKey(possibleColor)) {
-            alert = new AlertMessage(StringUtil.join(args, 2), getColorMap().get(possibleColor));
+        if (colorList().contains(possibleColor)) {
+            alert = new AlertMessage(StringUtil.join(args, 2), color(possibleColor));
         } else {
             alert = new AlertMessage(StringUtil.join(args, 1));
         }
@@ -140,16 +153,48 @@ public class AlertCommands implements CommandExecutor {
             return;
         }
 
-        String possibleColor = args[2].toLowerCase().replace("_", "");
+        String possibleColor = args[2].toUpperCase();
         AlertMessage alert;
-        if (getColorMap().containsKey(possibleColor)) {
-            alert = new AlertMessage(StringUtil.join(args, 3), getColorMap().get(possibleColor));
+        if (colorList().contains(possibleColor)) {
+            alert = new AlertMessage(StringUtil.join(args, 3), color(possibleColor));
         } else {
             alert = new AlertMessage(StringUtil.join(args, 2));
         }
 
         plugin.getAlertHandler().addAlert(alert, index - 1);
         sender.sendMessage(String.format("%sAlert #%d added.", ChatColor.LIGHT_PURPLE, index));
+
+    }
+
+    /**
+     * Edit an existing alert.
+     */
+    private void editCommand(CommandSender sender, String[] args) {
+
+        if(args.length < 3) {
+            sender.sendMessage(Component.text("Usage: /alert insert <index> [color] <message>", NamedTextColor.RED));
+        }
+
+        int max = plugin.getAlertHandler().getAlerts().size() - 1;
+        int index;
+        try {
+            index = Integer.parseInt(args[1]);
+        } catch (NumberFormatException ex) {
+            sender.sendMessage(Component.text("A numerical index must be specified.", NamedTextColor.RED));
+            return;
+        }
+
+        index--;
+
+        if (index < 1 || index > max) {
+            sender.sendMessage(Component.text("The index must be a number between 1 and " +
+                    max + " inclusive.", NamedTextColor.RED));
+            return;
+        }
+
+        plugin.getAlertHandler().editAlert(StringUtil.join(args, 2), index);
+
+        sender.sendMessage(Component.text("Alert #" + index + " added.", NamedTextColor.LIGHT_PURPLE));
 
     }
 
@@ -184,7 +229,7 @@ public class AlertCommands implements CommandExecutor {
 
         AlertMessage alert = plugin.getAlertHandler().removeAlert(index - 1);
         if (alert != null) {
-            sender.sendMessage(String.format("%sRemoved alert: %s%s", ChatColor.LIGHT_PURPLE, alert.getColor(), alert.getText()));
+            sender.sendMessage(Component.text("Removed alert: ", NamedTextColor.LIGHT_PURPLE).append(alert.getText()));
         }
 
     }
@@ -228,28 +273,26 @@ public class AlertCommands implements CommandExecutor {
         sender.sendMessage(ChatColor.LIGHT_PURPLE + "Alerts reloaded.");
     }
 
+    @Override
+    public @Nullable List<String> onTabComplete(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] strings) {
+        if(strings.length < 3) return List.of();
+        String subCommand = strings[0];
+        if(subCommand.equalsIgnoreCase("edit") && strings.length == 3) {
+                int index;
+                try {
+                    index = Integer.parseInt(strings[1]);
+                } catch(Exception e) {
+                    return List.of();
+                }
+                index--;
 
-    /**
-     * Map of user-friendly color names to use for alerts' primary color
-     */
-    private Map<String, ChatColor> getColorMap() {
-        List<String> excluded = Arrays.asList("BOLD", "ITALIC", "PLAIN_WHITE", "RANDOM", "STRIKETHROUGH", "UNDERLINE");
-        Map<String, ChatColor> colors = new HashMap<String, ChatColor>();
-        colors.put("darkgrey", ChatColor.DARK_GRAY);
-        colors.put("orange", ChatColor.GOLD);
-        colors.put("grey", ChatColor.GRAY);
-        colors.put("pink", ChatColor.LIGHT_PURPLE);
-        colors.put("purple", ChatColor.LIGHT_PURPLE);
-        String key;
-        for (ChatColor c : ChatColor.values()) {
-            if (!excluded.contains(c.toString())) {
-                key = c.name().toLowerCase().replace("_", "");
-                key = key.replace("gray", "grey");
-                colors.put(key, c);
+                List<AlertMessage> alerts = plugin.getAlertHandler().getAlerts();
+                if(index >= 0 && index <= (alerts.size() - 1)) {
+                    String text = alerts.get(index).getRawText();
+                    if(text != null) return List.of(text);
+                }
             }
-        }
-        return colors;
+
+        return List.of();
     }
-
-
 }

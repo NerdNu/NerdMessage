@@ -1,20 +1,22 @@
 package nu.nerd.nerdmessage.commands;
 
-import java.util.HashSet;
-import java.util.Collections;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import nu.nerd.nerdmessage.NMUser;
 import nu.nerd.nerdmessage.NerdMessage;
 import nu.nerd.nerdmessage.StringUtil;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 
-public class ChatCommands implements CommandExecutor {
+public class ChatCommands implements CommandExecutor, TabCompleter {
 
 
     private NerdMessage plugin;
@@ -74,7 +76,7 @@ public class ChatCommands implements CommandExecutor {
     /**
      * Send a private message to a player
      * @param sender The CommandSender object from onCommand()
-     * @param recipientName The username string of the recipient
+     * @param recipientNames The username strings of the recipients
      * @param message The message to send
      * @param green Whether this is a staff green message from /cmsg
      * @param sarcastic Whether this message will be italic
@@ -140,7 +142,7 @@ public class ChatCommands implements CommandExecutor {
                     // If there is more than 1 recipient (aka non-self message), don't include "Me" in recipients list for the sender
                     .filter(name -> !(name.equals("Me") && recipientName.equals(sender.getName()) && recipients.size() > 1))
                     .distinct()
-                    .collect(Collectors.joining(",")),
+                    .collect(Collectors.joining(", ")),
                 action
             );
 
@@ -241,4 +243,22 @@ public class ChatCommands implements CommandExecutor {
     }
 
 
+    @Override
+    public @Nullable List<String> onTabComplete(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] strings) {
+        if(strings.length == 1) {
+            String input = strings[0];
+
+            String[] parts = input.split(",", -1);
+            String lastPart = parts[parts.length - 1].trim();
+
+            List<String> suggestions = Bukkit.getOnlinePlayers().stream()
+                    .map(Player::getName)
+                    .filter(name -> name.toLowerCase().startsWith(lastPart.toLowerCase()))
+                    .toList();
+
+            String prefix = input.contains(",") ? input.substring(0, input.lastIndexOf(',') + 1) : "";
+            return suggestions.stream().map(string -> prefix + string).toList();
+        }
+        return List.of();
+    }
 }

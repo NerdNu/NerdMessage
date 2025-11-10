@@ -1,5 +1,7 @@
 package nu.nerd.nerdmessage;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -10,6 +12,8 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import java.lang.ref.WeakReference;
 import java.util.Iterator;
+
+import static nu.nerd.nerdmessage.ColourUtils.formatMiniMessage;
 
 public class NerdMessageListener implements Listener {
 
@@ -81,13 +85,16 @@ public class NerdMessageListener implements Listener {
                     return;
                 }
                 if (motd != null && !motd.equals("")) {
-                    p.sendMessage(ChatColor.AQUA + "[MOTD]: " + ChatColor.WHITE + ChatColor.translateAlternateColorCodes('&', motd));
+                    p.sendMessage(Component.text("[MOTD]: ", NamedTextColor.AQUA)
+                            .append(formatMiniMessage(motd)));
                 }
                 if (mbmotd != null && !mbmotd.equals("")) {
-                    p.sendMessage(ChatColor.GREEN + "[MB MOTD]: " + ChatColor.WHITE + ChatColor.translateAlternateColorCodes('&', mbmotd));
+                    p.sendMessage(Component.text("[MB MOTD]: ", NamedTextColor.GREEN)
+                            .append(formatMiniMessage(mbmotd)));
                 }
                 if (abmotd != null && !abmotd.equals("")) {
-                    p.sendMessage(ChatColor.GOLD + "[AB MOTD]: " + ChatColor.WHITE + ChatColor.translateAlternateColorCodes('&', abmotd));
+                    p.sendMessage(Component.text("[AB MOTD]: ", NamedTextColor.GOLD)
+                            .append(formatMiniMessage(abmotd)));
                 }
             }
         }.runTaskLater(plugin, 40);

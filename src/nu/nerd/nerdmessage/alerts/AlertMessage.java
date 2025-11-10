@@ -1,39 +1,34 @@
 package nu.nerd.nerdmessage.alerts;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.ChatColor;
+
+import static nu.nerd.nerdmessage.ColourUtils.formatMiniMessage;
 
 
 public class AlertMessage {
 
 
     private String text;
-    private ChatColor color;
+    private TextColor color;
 
 
     public AlertMessage(String text) {
         this.text = text;
-        this.color = ChatColor.LIGHT_PURPLE;
+        this.color = NamedTextColor.LIGHT_PURPLE;
     }
 
 
-    public AlertMessage(String text, ChatColor color) {
+    public AlertMessage(String text, TextColor color) {
         this.text = text;
         this.color = color;
     }
 
 
-    public AlertMessage(String text, String color) {
-        try {
-            this.text = text;
-            this.color = ChatColor.valueOf(color.toUpperCase());
-        } catch (Exception ex) {
-            this.color = ChatColor.LIGHT_PURPLE;
-        }
-    }
-
-
-    public String getText() {
-        return ChatColor.translateAlternateColorCodes('&', text);
+    public Component getText() {
+        return formatMiniMessage(text);
     }
 
 
@@ -42,9 +37,15 @@ public class AlertMessage {
     }
 
 
-    public ChatColor getColor() {
+    public TextColor getColor() {
         return color;
     }
 
+    public void setText(String text) {
+        this.text = text;
+    }
 
+    public void setColor(TextColor color) {
+        this.color = color;
+    }
 }
